@@ -124,70 +124,76 @@ const jocarsaMistyrose = (function () {
             this.createLegend(container, dataWithPercentages);
         }
 
-        // Create a bar chart
-        createBarChart(container) {
-            const width = 400;
-            const height = 300;
-            const barWidth = 40;
-            const barSpacing = 20;
-            const maxValue = Math.max(...this.data.map(item => item.value));
+        // Create a bar chart with a legend
+createBarChart(container) {
+    const width = 400;
+    const height = 300;
+    const barWidth = 40;
+    const barSpacing = 20;
+    const maxValue = Math.max(...this.data.map(item => item.value));
 
-            const svg = this.createSVG(width, height);
-            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-            g.setAttribute("transform", `translate(50, 20)`); // Add padding
+    const svg = this.createSVG(width, height);
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("transform", `translate(50, 20)`); // Add padding
 
-            this.data.forEach((item, index) => {
-                const barHeight = (item.value / maxValue) * (height - 50); // Scale bars to fit height
-                const x = index * (barWidth + barSpacing);
-                const y = height - 50 - barHeight;
+    // Calculate percentages for the data
+    const dataWithPercentages = this.calculatePercentages(this.data);
 
-                // Draw bar
-                const bar = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-                bar.setAttribute("x", x);
-                bar.setAttribute("y", y);
-                bar.setAttribute("width", barWidth);
-                bar.setAttribute("height", barHeight);
-                bar.setAttribute("fill", this.colors[index]);
-                bar.style.transition = "fill 0.2s ease";
+    dataWithPercentages.forEach((item, index) => {
+        const barHeight = (item.value / maxValue) * (height - 50); // Scale bars to fit height
+        const x = index * (barWidth + barSpacing);
+        const y = height - 50 - barHeight;
 
-                // Add hover effect
-                bar.addEventListener("mouseenter", () => {
-                    bar.setAttribute("fill", "hsl(0, 0%, 80%)"); // Highlight on hover
-                });
-                bar.addEventListener("mouseleave", () => {
-                    bar.setAttribute("fill", this.colors[index]); // Restore color
-                });
+        // Draw bar
+        const bar = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        bar.setAttribute("x", x);
+        bar.setAttribute("y", y);
+        bar.setAttribute("width", barWidth);
+        bar.setAttribute("height", barHeight);
+        bar.setAttribute("fill", this.colors[index]);
+        bar.style.transition = "fill 0.2s ease";
 
-                g.appendChild(bar);
+        // Add hover effect
+        bar.addEventListener("mouseenter", () => {
+            bar.setAttribute("fill", "hsl(0, 0%, 80%)"); // Highlight on hover
+        });
+        bar.addEventListener("mouseleave", () => {
+            bar.setAttribute("fill", this.colors[index]); // Restore color
+        });
 
-                // Add label below the bar
-                const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                label.setAttribute("x", x + barWidth / 2);
-                label.setAttribute("y", height - 30);
-                label.setAttribute("text-anchor", "middle");
-                label.setAttribute("fill", "#333");
-                label.setAttribute("font-size", "12px");
-                label.setAttribute("font-family", "Arial, sans-serif");
-                label.textContent = item.label;
+        g.appendChild(bar);
 
-                g.appendChild(label);
+        // Add label below the bar
+        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label.setAttribute("x", x + barWidth / 2);
+        label.setAttribute("y", height - 30);
+        label.setAttribute("text-anchor", "middle");
+        label.setAttribute("fill", "#333");
+        label.setAttribute("font-size", "12px");
+        label.setAttribute("font-family", "Arial, sans-serif");
+        label.textContent = item.label;
 
-                // Add value above the bar
-                const value = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                value.setAttribute("x", x + barWidth / 2);
-                value.setAttribute("y", y - 5);
-                value.setAttribute("text-anchor", "middle");
-                value.setAttribute("fill", "#333");
-                value.setAttribute("font-size", "12px");
-                value.setAttribute("font-family", "Arial, sans-serif");
-                value.textContent = item.value;
+        g.appendChild(label);
 
-                g.appendChild(value);
-            });
+        // Add value above the bar
+        const value = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        value.setAttribute("x", x + barWidth / 2);
+        value.setAttribute("y", y - 5);
+        value.setAttribute("text-anchor", "middle");
+        value.setAttribute("fill", "#333");
+        value.setAttribute("font-size", "12px");
+        value.setAttribute("font-family", "Arial, sans-serif");
+        value.textContent = item.value;
 
-            svg.appendChild(g);
-            container.appendChild(svg);
-        }
+        g.appendChild(value);
+    });
+
+    svg.appendChild(g);
+    container.appendChild(svg);
+
+    // Add legend to the bar chart
+    this.createLegend(container, dataWithPercentages);
+}
 
         // Create a legend
         createLegend(container, data) {
@@ -209,7 +215,7 @@ const jocarsaMistyrose = (function () {
                 colorSquare.style.marginRight = "8px";
 
                 const labelText = document.createElement("span");
-                labelText.textContent = `${item.label}: ${item.value} (${item.percentage.toFixed(2)}%)`;
+                labelText.textContent = `${item.label}: ${item.value} (${item.percentage ? item.percentage.toFixed(2) + "%" : ""})`;
 
                 legendItem.appendChild(colorSquare);
                 legendItem.appendChild(labelText);
